@@ -1,6 +1,6 @@
 /**
  * The Forgotten Server - a free and open-source MMORPG server emulator
- * Copyright (C) 2015  Mark Samman <mark.samman@gmail.com>
+ * Copyright (C) 2016  Mark Samman <mark.samman@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -245,6 +245,7 @@ class ItemType
 		RaceType_t corpseType;
 		FluidTypes_t fluidSource;
 
+		uint8_t floorChange;
 		uint8_t alwaysOnTopOrder;
 		uint8_t lightLevel;
 		uint8_t lightColor;
@@ -252,13 +253,6 @@ class ItemType
 		int8_t hitChance;
 
 		bool forceUse;
-		bool floorChangeDown;
-		bool floorChangeNorth;
-		bool floorChangeSouth;
-		bool floorChangeSouthAlt;
-		bool floorChangeEast;
-		bool floorChangeEastAlt;
-		bool floorChangeWest;
 		bool hasHeight;
 		bool walkStack;
 		bool blockSolid;

@@ -1,6 +1,6 @@
 /**
  * The Forgotten Server - a free and open-source MMORPG server emulator
- * Copyright (C) 2015  Mark Samman <mark.samman@gmail.com>
+ * Copyright (C) 2016  Mark Samman <mark.samman@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -81,7 +81,7 @@ class ProtocolGame final : public Protocol
 
 	private:
 		ProtocolGame_ptr getThis() {
-			return std::dynamic_pointer_cast<ProtocolGame>(shared_from_this());
+			return std::static_pointer_cast<ProtocolGame>(shared_from_this());
 		}
 		void connect(uint32_t playerId, OperatingSystem_t operatingSystem);
 		void disconnectClient(const std::string& message) const;
@@ -329,13 +329,13 @@ class ProtocolGame final : public Protocol
 		Player* player;
 
 		uint32_t eventConnect;
-		uint32_t m_challengeTimestamp;
+		uint32_t challengeTimestamp;
 		uint16_t version;
 
-		uint8_t m_challengeRandom;
+		uint8_t challengeRandom;
 
-		bool m_debugAssertSent;
-		bool m_acceptPackets;
+		bool debugAssertSent;
+		bool acceptPackets;
 };
 
 #endif

@@ -1,6 +1,6 @@
 /**
  * The Forgotten Server - a free and open-source MMORPG server emulator
- * Copyright (C) 2015  Mark Samman <mark.samman@gmail.com>
+ * Copyright (C) 2016  Mark Samman <mark.samman@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -132,11 +132,9 @@ class NetworkMessage
 			return position;
 		}
 
-		void setBufferPosition(MsgSize_t pos) {
-			position = pos;
+		uint16_t getLengthHeader() const {
+			return static_cast<uint16_t>(buffer[0] | buffer[1] << 8);
 		}
-
-		int32_t decodeHeader();
 
 		bool isOverrun() const {
 			return overrun;

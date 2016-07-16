@@ -1,6 +1,6 @@
 /**
  * The Forgotten Server - a free and open-source MMORPG server emulator
- * Copyright (C) 2015  Mark Samman <mark.samman@gmail.com>
+ * Copyright (C) 2016  Mark Samman <mark.samman@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,7 +59,7 @@ class ChatChannel
 		const UsersMap& getUsers() const {
 			return users;
 		}
-		virtual const InvitedMap* getInvitedUsersPtr() const {
+		virtual const InvitedMap* getInvitedUsers() const {
 			return nullptr;
 		}
 
@@ -111,11 +111,7 @@ class PrivateChatChannel final : public ChatChannel
 
 		void closeChannel() const;
 
-		const InvitedMap& getInvitedUsers() const {
-			return invites;
-		}
-
-		const InvitedMap* getInvitedUsersPtr() const final {
+		const InvitedMap* getInvitedUsers() const final {
 			return &invites;
 		}
 
