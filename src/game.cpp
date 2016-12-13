@@ -48,29 +48,8 @@ extern Vocations g_vocations;
 extern GlobalEvents* g_globalEvents;
 extern Events* g_events;
 
-Game::Game() :
-	wildcardTree(false),
-	offlineTrainingWindow(std::numeric_limits<uint32_t>::max(), "Choose a Skill", "Please choose a skill:")
+Game::Game()
 {
-	gameState = GAME_STATE_NORMAL;
-	worldType = WORLD_TYPE_PVP;
-
-	serviceManager = nullptr;
-	lastStageLevel = 0;
-	playersRecord = 0;
-	motdNum = 0;
-	useLastStageLevel = false;
-	stagesEnabled = false;
-
-	lastBucket = 0;
-
-	//(1440 minutes/day)/(3600 seconds/day)*10 seconds event interval
-	int32_t dayCycle = 3600;
-	lightHourDelta = 1440 * 10 / dayCycle;
-	lightHour = SUNRISE + (SUNSET - SUNRISE) / 2;
-	lightLevel = LIGHT_LEVEL_DAY;
-	lightState = LIGHT_STATE_DAY;
-
 	offlineTrainingWindow.choices.emplace_back("Sword Fighting and Shielding", SKILL_SWORD);
 	offlineTrainingWindow.choices.emplace_back("Axe Fighting and Shielding", SKILL_AXE);
 	offlineTrainingWindow.choices.emplace_back("Club Fighting and Shielding", SKILL_CLUB);
@@ -773,6 +752,7 @@ void Game::playerMoveCreature(Player* player, Creature* movingCreature, const Po
 
 ReturnValue Game::internalMoveCreature(Creature* creature, Direction direction, uint32_t flags /*= 0*/)
 {
+	creature->setLastPosition(creature->getPosition());
 	const Position& currentPos = creature->getPosition();
 	Position destPos = getNextPosition(direction, currentPos);
 
@@ -1847,6 +1827,11 @@ void Game::playerOpenPrivateChannel(uint32_t playerId, std::string& receiver)
 		return;
 	}
 
+	if (player->getName() == receiver) {
+		player->sendCancelMessage("You cannot set up a private message channel with yourself.");
+		return;
+	}
+
 	player->sendOpenPrivateChannel(receiver);
 }
 
@@ -2383,7 +2368,7 @@ void Game::playerSeekInContainer(uint32_t playerId, uint8_t containerId, uint16_
 	}
 
 	player->setContainerIndex(containerId, index);
-	player->sendContainer(containerId, container, false, index);
+	player->sendContainer(containerId, container, container->hasParent(), index);
 }
 
 void Game::playerUpdateHouseWindow(uint32_t playerId, uint8_t listId, uint32_t windowTextId, const std::string& text)
@@ -2399,8 +2384,6 @@ void Game::playerUpdateHouseWindow(uint32_t playerId, uint8_t listId, uint32_t w
 	House* house = player->getEditHouse(internalWindowTextId, internalListId);
 	if (house && house->canEditAccessList(internalListId, player) && internalWindowTextId == windowTextId && listId == 0) {
 		house->setAccessList(internalListId, text);
-		player->setEditHouse(nullptr);
-		return;
 	}
 
 	player->setEditHouse(nullptr);
@@ -2583,7 +2566,7 @@ void Game::playerAcceptTrade(uint32_t playerId)
 		player->setTradeState(TRADE_TRANSFER);
 		tradePartner->setTradeState(TRADE_TRANSFER);
 
-		std::map<Item*, uint32_t>::iterator it = tradeItems.find(tradeItem1);
+		auto it = tradeItems.find(tradeItem1);
 		if (it != tradeItems.end()) {
 			ReleaseItem(it->first);
 			tradeItems.erase(it);
@@ -2754,7 +2737,7 @@ void Game::internalCloseTrade(Player* player)
 	}
 
 	if (player->getTradeItem()) {
-		std::map<Item*, uint32_t>::iterator it = tradeItems.find(player->getTradeItem());
+		auto it = tradeItems.find(player->getTradeItem());
 		if (it != tradeItems.end()) {
 			ReleaseItem(it->first);
 			tradeItems.erase(it);
@@ -2772,7 +2755,7 @@ void Game::internalCloseTrade(Player* player)
 
 	if (tradePartner) {
 		if (tradePartner->getTradeItem()) {
-			std::map<Item*, uint32_t>::iterator it = tradeItems.find(tradePartner->getTradeItem());
+			auto it = tradeItems.find(tradePartner->getTradeItem());
 			if (it != tradeItems.end()) {
 				ReleaseItem(it->first);
 				tradeItems.erase(it);
@@ -3035,7 +3018,7 @@ void Game::playerFollowCreature(uint32_t playerId, uint32_t creatureId)
 	player->setFollowCreature(getCreatureByID(creatureId));
 }
 
-void Game::playerSetFightModes(uint32_t playerId, fightMode_t fightMode, chaseMode_t chaseMode, bool secureMode)
+void Game::playerSetFightModes(uint32_t playerId, fightMode_t fightMode, bool chaseMode, bool secureMode)
 {
 	Player* player = getPlayerByID(playerId);
 	if (!player) {
